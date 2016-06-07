@@ -306,9 +306,9 @@ def create_storage_manifest(config, messages):
     for device in devices:
         if device['device'] is None:
             config['CONFIG_SWIFT_STORAGE_SEEK'] = get_storage_size(config)
-    	else:
+        else:
             devicename = device['device_name']
-            devicedev  = device['device']
+            devicedev = device['device']
             key = "dev_%s_%s" % (host, devicename)
             swift_dev_details.setdefault(key, {})
             swift_dev_details[key]['device'] = "%s" % devicename
