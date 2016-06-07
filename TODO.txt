@@ -1,0 +1,8 @@
+The following items are still pending:
+
+- VMware cluster logic for compute nodes
+- Some logic in compute nodes when host is not in network_hosts
+- Similar logic for compute nodes when using Nova Network
+- Redis HA logic (ceilometer_800.py)
+- Change message for plugins, when "creating manifests"
+- Additional cleanup: remove unused functions in Python code

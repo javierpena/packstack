@@ -25,10 +25,8 @@ from packstack.installer import processors
 from packstack.installer.utils import split_hosts
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.shortcuts import get_mq
 from packstack.modules.ospluginutils import appendManifestFile
 from packstack.modules.ospluginutils import createFirewallResources
-from packstack.modules.ospluginutils import getManifestTemplate
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------- Ceilometer Packstack Plugin Initialization --------------
@@ -258,9 +256,7 @@ def initSequences(controller):
              {'title': 'Adding Redis manifest entries',
               'functions': [create_redis_manifest]},
              {'title': 'Adding Ceilometer manifest entries',
-              'functions': [create_manifest]},
-             {'title': 'Adding Ceilometer Keystone manifest entries',
-              'functions': [create_keystone_manifest]}]
+              'functions': [create_manifest]}]
     controller.addSequence("Installing OpenStack Ceilometer", [], [],
                            steps)
 
@@ -268,11 +264,7 @@ def initSequences(controller):
 # -------------------------- step functions --------------------------
 
 def create_manifest(config, messages):
-    manifestfile = "%s_ceilometer.pp" % config['CONFIG_CONTROLLER_HOST']
-    manifestdata = getManifestTemplate(get_mq(config, "ceilometer"))
-    manifestdata += getManifestTemplate("ceilometer")
-    if config['CONFIG_CEILOMETER_SERVICE_NAME'] == 'httpd':
-        manifestdata += getManifestTemplate("apache_ports")
+    manifestfile = "%s_firewall.pp" % config['CONFIG_CONTROLLER_HOST']
 
     if config['CONFIG_CEILOMETER_COORDINATION_BACKEND'] == 'redis':
         # Determine if we need to configure multiple sentinel hosts as
@@ -321,12 +313,8 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['8777']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_CEILOMETER_RULES'] = fw_details
-    manifestdata += createFirewallResources('FIREWALL_CEILOMETER_RULES')
+    manifestdata = createFirewallResources('FIREWALL_CEILOMETER_RULES')
 
-    # Add a template that creates a group for nova because the ceilometer
-    # class needs it
-    if config['CONFIG_NOVA_INSTALL'] == 'n':
-        manifestdata += getManifestTemplate("ceilometer_nova_disabled")
     appendManifestFile(manifestfile, manifestdata, 'ceilometer')
 
 
@@ -336,8 +324,8 @@ def create_mongodb_manifest(config, messages):
         config['CONFIG_MONGODB_HOST_URL'] = "[%s]" % host
     else:
         config['CONFIG_MONGODB_HOST_URL'] = host
-    manifestfile = "%s_mongodb.pp" % config['CONFIG_MONGODB_HOST']
-    manifestdata = getManifestTemplate("mongodb")
+
+    manifestfile = "%s_firewall.pp" % config['CONFIG_MONGODB_HOST']
 
     fw_details = dict()
     key = "mongodb_server"
@@ -349,7 +337,7 @@ def create_mongodb_manifest(config, messages):
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_MONGODB_RULES'] = fw_details
 
-    manifestdata += createFirewallResources('FIREWALL_MONGODB_RULES')
+    manifestdata = createFirewallResources('FIREWALL_MONGODB_RULES')
     appendManifestFile(manifestfile, manifestdata, 'pre')
 
 
@@ -362,56 +350,49 @@ def create_redis_manifest(config, messages):
             config['CONFIG_REDIS_MASTER_HOST_URL'] = redis_master_host
 
         # master
-        manifestfile = "%s_redis.pp" % config['CONFIG_REDIS_MASTER_HOST']
-        manifestdata = getManifestTemplate("redis.pp")
-
+        manifestfile = "%s_firewall.pp" % config['CONFIG_REDIS_MASTER_HOST']
         master_clients = set([config['CONFIG_CONTROLLER_HOST']]).union(
             split_hosts(config['CONFIG_REDIS_SLAVE_HOSTS'])).union(
             split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']))
         config['FIREWALL_REDIS_RULES'] = _create_redis_firewall_rules(
             master_clients, config['CONFIG_REDIS_PORT'])
 
-        manifestdata += createFirewallResources('FIREWALL_REDIS_RULES')
+        manifestdata = createFirewallResources('FIREWALL_REDIS_RULES')
         appendManifestFile(manifestfile, manifestdata, 'pre')
 
+        # TODO(jpena): we are disabling redis slave support for now
         # slaves
-        if config['CONFIG_REDIS_HA'] == 'y':
-            for slave in split_hosts(config['CONFIG_REDIS_SLAVE_HOSTS']):
-                config['CONFIG_REDIS_HOST'] = slave
-                manifestfile = "%s_redis_slave.pp" % slave
-                manifestdata = getManifestTemplate("redis_slave.pp")
-
-                slave_clients = set([config['CONFIG_CONTROLLER_HOST']]).union(
-                    split_hosts(config['CONFIG_REDIS_SLAVE_HOSTS'])).union(
-                        split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']))
-                config['FIREWALL_REDIS_SLAVE_RULES'] = (
-                    _create_redis_firewall_rules(
-                        slave_clients, config['CONFIG_REDIS_PORT']))
-
-                manifestdata += createFirewallResources(
-                    'FIREWALL_REDIS_SLAVE_RULES')
-                appendManifestFile(manifestfile, manifestdata, 'pre')
+        # if config['CONFIG_REDIS_HA'] == 'y':
+        #    for slave in split_hosts(config['CONFIG_REDIS_SLAVE_HOSTS']):
+        #        config['CONFIG_REDIS_HOST'] = slave
+        #        manifestfile = "%s_redis_slave.pp" % slave
+        #        manifestdata = getManifestTemplate("redis_slave.pp")
+        #
+        #        slave_clients = set([config['CONFIG_CONTROLLER_HOST']]).union(
+        #            split_hosts(config['CONFIG_REDIS_SLAVE_HOSTS'])).union(
+        #                split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']))
+        #        config['FIREWALL_REDIS_SLAVE_RULES'] = (
+        #            _create_redis_firewall_rules(
+        #                slave_clients, config['CONFIG_REDIS_PORT']))
+        #
+        #        manifestdata += createFirewallResources(
+        #            'FIREWALL_REDIS_SLAVE_RULES')
+        #        appendManifestFile(manifestfile, manifestdata, 'pre')
 
         # sentinels
-        if config['CONFIG_REDIS_HA'] == 'y':
-            for sentinel in split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']):
-                manifestfile = "%s_redis_sentinel.pp" % sentinel
-                manifestdata = getManifestTemplate("redis_sentinel.pp")
-
-                config['FIREWALL_SENTINEL_RULES'] = (
-                    _create_redis_firewall_rules(
-                        split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']),
-                        config['CONFIG_REDIS_SENTINEL_PORT']))
-
-                manifestdata += createFirewallResources(
-                    'FIREWALL_SENTINEL_RULES')
-                appendManifestFile(manifestfile, manifestdata, 'pre')
-
-
-def create_keystone_manifest(config, messages):
-    manifestfile = "%s_keystone.pp" % config['CONFIG_CONTROLLER_HOST']
-    manifestdata = getManifestTemplate("keystone_ceilometer")
-    appendManifestFile(manifestfile, manifestdata)
+        # if config['CONFIG_REDIS_HA'] == 'y':
+        #    for sentinel in split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']):
+        #        manifestfile = "%s_redis_sentinel.pp" % sentinel
+        #        manifestdata = getManifestTemplate("redis_sentinel.pp")
+        #
+        #        config['FIREWALL_SENTINEL_RULES'] = (
+        #            _create_redis_firewall_rules(
+        #                split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']),
+        #                config['CONFIG_REDIS_SENTINEL_PORT']))
+        #
+        #        manifestdata += createFirewallResources(
+        #            'FIREWALL_SENTINEL_RULES')
+        #        appendManifestFile(manifestfile, manifestdata, 'pre')
 
 
 # ------------------------- helper functions -------------------------

@@ -25,7 +25,6 @@ from packstack.modules.common import filtered_hosts
 from packstack.modules.documentation import update_params_usage
 from packstack.modules.ospluginutils import appendManifestFile
 from packstack.modules.ospluginutils import createFirewallResources
-from packstack.modules.ospluginutils import getManifestTemplate
 
 # ------------- MariaDB Packstack Plugin Initialization --------------
 
@@ -99,10 +98,8 @@ def initSequences(controller):
 
 def create_manifest(config, messages):
     if config['CONFIG_MARIADB_INSTALL'] == 'y':
-        suffix = 'install'
         host = config['CONFIG_MARIADB_HOST']
     else:
-        suffix = 'noinstall'
         host = config['CONFIG_CONTROLLER_HOST']
 
     if config['CONFIG_IP_VERSION'] == 'ipv6':
@@ -110,30 +107,10 @@ def create_manifest(config, messages):
     else:
         config['CONFIG_MARIADB_HOST_URL'] = host
 
-    manifestfile = "%s_mariadb.pp" % host
-    manifestdata = [getManifestTemplate('mariadb_%s' % suffix)]
-
-    def append_for(module, suffix):
-        # Modules have to be appended to the existing mysql.pp
-        # otherwise pp will fail for some of them saying that
-        # Mysql::Config definition is missing.
-        template = "mariadb_%s_%s" % (module, suffix)
-        manifestdata.append(getManifestTemplate(template))
-
-    append_for("keystone", suffix)
-    for mod in ['nova', 'cinder', 'glance', 'neutron', 'heat', 'sahara',
-                'trove', 'ironic', 'manila']:
-        if config['CONFIG_%s_INSTALL' % mod.upper()] == 'y':
-            append_for(mod, suffix)
-
-    if (config['CONFIG_GNOCCHI_INSTALL'] == 'y' and
-       config['CONFIG_CEILOMETER_INSTALL'] == 'y'):
-        append_for('gnocchi', suffix)
-
-    hosts = filtered_hosts(config, exclude=False, dbhost=True)
+    manifestfile = "%s_firewall.pp" % host
 
     fw_details = dict()
-    for host in hosts:
+    for host in filtered_hosts(config, exclude=False, dbhost=True):
         key = "mariadb_%s" % host
         fw_details.setdefault(key, {})
         fw_details[key]['host'] = "%s" % host
@@ -143,5 +120,5 @@ def create_manifest(config, messages):
         fw_details[key]['proto'] = "tcp"
     config['FIREWALL_MARIADB_RULES'] = fw_details
 
-    manifestdata.append(createFirewallResources('FIREWALL_MARIADB_RULES'))
-    appendManifestFile(manifestfile, "\n".join(manifestdata), 'pre')
+    manifestdata = createFirewallResources('FIREWALL_MARIADB_RULES')
+    appendManifestFile(manifestfile, manifestdata, 'pre')

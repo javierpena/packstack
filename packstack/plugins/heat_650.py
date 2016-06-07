@@ -24,10 +24,8 @@ from packstack.installer import validators
 from packstack.installer import processors
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.shortcuts import get_mq
 from packstack.modules.ospluginutils import appendManifestFile
 from packstack.modules.ospluginutils import createFirewallResources
-from packstack.modules.ospluginutils import getManifestTemplate
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------- Heat Packstack Plugin Initialization --------------
@@ -185,10 +183,7 @@ def create_manifest(config, messages):
         generate_ssl_cert(config, ssl_host, service, ssl_key_file,
                           ssl_cert_file)
 
-    manifestfile = "%s_heat.pp" % config['CONFIG_CONTROLLER_HOST']
-    manifestdata = getManifestTemplate(get_mq(config, "heat"))
-    manifestdata += getManifestTemplate("heat")
-    manifestdata += getManifestTemplate("keystone_heat")
+    manifestfile = "%s_firewall.pp" % config['CONFIG_CONTROLLER_HOST']
 
     fw_details = dict()
     key = "heat"
@@ -200,15 +195,12 @@ def create_manifest(config, messages):
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_HEAT_RULES'] = fw_details
 
-    manifestdata += createFirewallResources('FIREWALL_HEAT_RULES')
+    manifestdata = createFirewallResources('FIREWALL_HEAT_RULES')
     appendManifestFile(manifestfile, manifestdata, marker='heat')
 
 
 def create_cloudwatch_manifest(config, messages):
-    manifestfile = "%s_heatcw.pp" % config['CONFIG_CONTROLLER_HOST']
-    manifestdata = getManifestTemplate(get_mq(config, "heat"))
-    manifestdata += getManifestTemplate("heat_cloudwatch")
-
+    manifestfile = "%s_firewall.pp" % config['CONFIG_CONTROLLER_HOST']
     fw_details = dict()
     key = "heat_api_cloudwatch"
     fw_details.setdefault(key, {})
@@ -219,14 +211,12 @@ def create_cloudwatch_manifest(config, messages):
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_HEAT_CLOUDWATCH_RULES'] = fw_details
 
-    manifestdata += createFirewallResources('FIREWALL_HEAT_CLOUDWATCH_RULES')
+    manifestdata = createFirewallResources('FIREWALL_HEAT_CLOUDWATCH_RULES')
     appendManifestFile(manifestfile, manifestdata, marker='heat')
 
 
 def create_cfn_manifest(config, messages):
-    manifestfile = "%s_heatcnf.pp" % config['CONFIG_CONTROLLER_HOST']
-    manifestdata = getManifestTemplate(get_mq(config, "heat"))
-    manifestdata += getManifestTemplate("heat_cfn")
+    manifestfile = "%s_firewall.pp" % config['CONFIG_CONTROLLER_HOST']
 
     fw_details = dict()
     key = "heat_cfn"
@@ -238,5 +228,5 @@ def create_cfn_manifest(config, messages):
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_HEAT_CFN_RULES'] = fw_details
 
-    manifestdata += createFirewallResources('FIREWALL_HEAT_CFN_RULES')
+    manifestdata = createFirewallResources('FIREWALL_HEAT_CFN_RULES')
     appendManifestFile(manifestfile, manifestdata, marker='heat')

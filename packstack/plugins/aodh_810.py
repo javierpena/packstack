@@ -22,10 +22,8 @@ from packstack.installer import validators
 from packstack.installer import processors
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.shortcuts import get_mq
 from packstack.modules.ospluginutils import appendManifestFile
 from packstack.modules.ospluginutils import createFirewallResources
-from packstack.modules.ospluginutils import getManifestTemplate
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------- Aodh Packstack Plugin Initialization --------------
@@ -77,9 +75,7 @@ def initSequences(controller):
         return
 
     steps = [{'title': 'Adding Aodh manifest entries',
-              'functions': [create_manifest]},
-             {'title': 'Adding Aodh Keystone manifest entries',
-              'functions': [create_keystone_manifest]}]
+              'functions': [create_manifest]}]
     controller.addSequence("Installing OpenStack Aodh", [], [],
                            steps)
 
@@ -87,10 +83,7 @@ def initSequences(controller):
 # -------------------------- step functions --------------------------
 
 def create_manifest(config, messages):
-    manifestfile = "%s_aodh.pp" % config['CONFIG_CONTROLLER_HOST']
-    manifestdata = getManifestTemplate(get_mq(config, "aodh"))
-    manifestdata += getManifestTemplate("aodh")
-    manifestdata += getManifestTemplate("apache_ports")
+    manifestfile = "%s_firewall.pp" % config['CONFIG_CONTROLLER_HOST']
 
     if config['CONFIG_AMQP_ENABLE_SSL'] == 'y':
         ssl_cert_file = config['CONFIG_AODH_SSL_CERT'] = (
@@ -113,11 +106,5 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['8042']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_AODH_RULES'] = fw_details
-    manifestdata += createFirewallResources('FIREWALL_AODH_RULES')
+    manifestdata = createFirewallResources('FIREWALL_AODH_RULES')
     appendManifestFile(manifestfile, manifestdata, 'aodh')
-
-
-def create_keystone_manifest(config, messages):
-    manifestfile = "%s_keystone.pp" % config['CONFIG_CONTROLLER_HOST']
-    manifestdata = getManifestTemplate("keystone_aodh")
-    appendManifestFile(manifestfile, manifestdata)

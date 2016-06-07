@@ -321,55 +321,8 @@ def initConfig(controller):
 def initSequences(controller):
     config = controller.CONF
 
-    if (config['CONFIG_PROVISION_DEMO'] != "y" and
-            config['CONFIG_PROVISION_TEMPEST'] != "y"):
-        return
-
-    provision_steps = [
-        {'title': 'Adding Provisioning manifest entries',
-         'functions': [create_provision_manifest]},
-        {'title': 'Adding Provisioning Glance manifest entries',
-         'functions': [create_storage_manifest]},
-    ]
-    if (config['CONFIG_PROVISION_TEMPEST'] == "y" or
-            config['CONFIG_PROVISION_DEMO'] == "y"):
-        provision_steps.append(
-            {'title': 'Adding Provisioning Demo bridge manifest entries',
-             'functions': [create_bridge_manifest]}
-        )
-    if config['CONFIG_PROVISION_TEMPEST'] == "y":
-        provision_steps.append(
-            {'title': 'Adding Provisioning Tempest manifest entries',
-             'functions': [create_tempest_manifest]}
-        )
-
-    controller.addSequence("Provisioning for Demo and Testing Usage",
-                           [], [], provision_steps)
-
 
 # -------------------------- step functions --------------------------
-
-def create_provision_manifest(config, messages):
-    manifest_file = '%s_provision.pp' % config['CONFIG_CONTROLLER_HOST']
-    manifest_data = getManifestTemplate("provision")
-    appendManifestFile(manifest_file, manifest_data, 'provision')
-
-
-def create_bridge_manifest(config, messages):
-    for host in utils.split_hosts(config['CONFIG_NETWORK_HOSTS']):
-        manifest_file = '{}_provision_bridge.pp'.format(host)
-        manifest_data = getManifestTemplate("provision_bridge")
-        appendManifestFile(manifest_file, manifest_data, 'bridge')
-
-
-def create_storage_manifest(config, messages):
-    if config['CONFIG_GLANCE_INSTALL'] == 'y':
-        template = "provision_glance"
-        manifest_file = '%s_provision_glance' % config['CONFIG_STORAGE_HOST']
-        manifest_data = getManifestTemplate(template)
-        appendManifestFile(manifest_file, manifest_data, 'provision')
-
-
 def create_tempest_manifest(config, messages):
     manifest_file = ('%s_provision_tempest.pp' %
                      config['CONFIG_TEMPEST_HOST'])

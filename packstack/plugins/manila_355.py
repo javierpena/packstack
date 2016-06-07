@@ -22,8 +22,6 @@ from packstack.installer import validators
 from packstack.installer import utils
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.shortcuts import get_mq
-from packstack.modules.ospluginutils import getManifestTemplate
 from packstack.modules.ospluginutils import appendManifestFile
 from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import generate_ssl_cert
@@ -554,8 +552,6 @@ def initSequences(controller):
     )
 
     manila_steps = [
-        {'title': 'Adding Manila Keystone manifest entries',
-         'functions': [create_keystone_manifest]},
         {'title': 'Adding Manila manifest entries',
          'functions': [create_manifest]}
     ]
@@ -604,15 +600,6 @@ def check_glusternfs_options(config):
 
 # -------------------------- step functions --------------------------
 
-def create_keystone_manifest(config, messages):
-    if config['CONFIG_UNSUPPORTED'] != 'y':
-        config['CONFIG_STORAGE_HOST'] = config['CONFIG_CONTROLLER_HOST']
-
-    manifestfile = "%s_keystone.pp" % config['CONFIG_CONTROLLER_HOST']
-    manifestdata = getManifestTemplate("keystone_manila.pp")
-    appendManifestFile(manifestfile, manifestdata)
-
-
 def create_manifest(config, messages):
     if config['CONFIG_UNSUPPORTED'] != 'y':
         config['CONFIG_STORAGE_HOST'] = config['CONFIG_CONTROLLER_HOST']
@@ -639,14 +626,7 @@ def create_manifest(config, messages):
         elif config[key].lower() == "false":
             config[key] = False
 
-    manifestdata = getManifestTemplate(get_mq(config, "manila"))
-    manifestfile = "%s_manila.pp" % config['CONFIG_STORAGE_HOST']
-    manifestdata += getManifestTemplate("manila.pp")
-    manifestdata += getManifestTemplate("manila_network.pp")
-
-    backends = config['CONFIG_MANILA_BACKEND']
-    for backend in backends:
-        manifestdata += getManifestTemplate('manila_%s.pp' % backend)
+    manifestfile = "%s_firewall.pp" % config['CONFIG_STORAGE_HOST']
 
     # manila API should be open for everyone
     fw_details = dict()
@@ -658,6 +638,6 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['8786']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_MANILA_API_RULES'] = fw_details
-    manifestdata += createFirewallResources('FIREWALL_MANILA_API_RULES')
+    manifestdata = createFirewallResources('FIREWALL_MANILA_API_RULES')
 
     appendManifestFile(manifestfile, manifestdata, marker='manila')

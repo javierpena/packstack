@@ -1,0 +1,4 @@
+class packstack::provision::storage ()
+{
+
+}
