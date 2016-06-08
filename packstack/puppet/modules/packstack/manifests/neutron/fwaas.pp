@@ -1,4 +1,4 @@
-class packstack::neutron::vpnaas ()
+class packstack::neutron::fwaas ()
 {
     class { '::neutron::services::fwaas':
       enabled => true,
