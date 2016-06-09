@@ -62,10 +62,14 @@ if hiera('CONFIG_NEUTRON_INSTALL') == 'y' {
   }
 } else {
   include '::packstack::nova::network::libvirt'
-  # TODO:       
-  # in multihost mode each compute host runs nova-api-metadata
-  #      if multihost and host != api_host and host in compute_hosts:
-  #          manifestdata += getManifestTemplate("nova_metadata")
+
+  $multihost = hiera('CONFIG_NOVA_NETWORK_MULTIHOST')
+  if $multihost {
+    $network_hosts =  split(hiera('CONFIG_NETWORK_HOSTS'),',')
+    if ! member($network_hosts, choose_my_ip(hiera('HOST_LIST'))) {
+      include '::packstack::nova::metadata'
+    }
+  }
 }
 
 if hiera('CONFIG_NAGIOS_INSTALL') == 'y' {

@@ -1,7 +1,5 @@
 The following items are still pending:
 
-- Some logic in compute nodes when host is not in network_hosts
-- Similar logic for compute nodes when using Nova Network
 - Consolidate firewall manifests inside the controller/compute/network, instead of generating them
 - Redis HA logic (ceilometer_800.py)
 - Change message for plugins, when "creating manifests"
