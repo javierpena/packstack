@@ -19,3 +19,7 @@ features:
     - The remaining Python code is left untouched, so we can keep complete
       compatibility with previous answer files.
 
+deprecations:
+  - |
+    Redis HA support has been removed from Packstack.
+
