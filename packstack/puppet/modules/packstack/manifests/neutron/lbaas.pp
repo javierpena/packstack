@@ -1,4 +1,4 @@
-class packstack::neutron::vpnaas ()
+class packstack::neutron::lbaas ()
 {
     class { '::neutron::agents::lbaas':
       interface_driver => hiera('CONFIG_NEUTRON_LBAAS_INTERFACE_DRIVER'),
