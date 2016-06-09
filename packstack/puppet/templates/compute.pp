@@ -20,7 +20,6 @@ include '::packstack::nova::common'
 include '::packstack::nova::compute'
 
 if hiera('CONFIG_VMWARE_BACKEND') == 'y' {
-  # TODO:  manifestdata += ("\n$nova_vcenter_cluster_name = 's'\n"  vmware_clusters[host])
   include '::packstack::nova::compute::vmware'
 } elsif hiera('CONFIG_IRONIC_INSTALL') == 'y' {
   include '::packstack::nova::compute::ironic'
@@ -29,17 +28,7 @@ if hiera('CONFIG_VMWARE_BACKEND') == 'y' {
 }
 
 if hiera('CONFIG_VMWARE_BACKEND') == 'y' and
-   hiera('CONFIG_CINDER_INSTAL') == 'y' {
-   if 'gluster' in hiera_array('CONFIG_CINDER_BACKEND') {
-    include '::packstack::nova::gluster'
-   }
-   if 'nfs' in hiera_array('CONFIG_CINDER_BACKEND') {
-    include '::packstack::nova::nfs'
-   }
-}
-
-if hiera('CONFIG_VMWARE_BACKEND') == 'y' and
-   hiera('CONFIG_CINDER_INSTAL') == 'y' {
+   hiera('CONFIG_CINDER_INSTALL') == 'y' {
    if 'gluster' in hiera_array('CONFIG_CINDER_BACKEND') {
     include '::packstack::nova::gluster'
    }

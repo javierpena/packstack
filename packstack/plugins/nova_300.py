@@ -607,6 +607,7 @@ def create_compute_manifest(config, messages):
             else:
                 vcenters = len(compute_hosts) * [vcenters[0]]
         vmware_clusters = dict(zip(compute_hosts, vcenters))
+        config['CONFIG_VCENTER_CLUSTERS'] = vmware_clusters
 
     for host in compute_hosts:
         if config['CONFIG_IRONIC_INSTALL'] == 'y':
