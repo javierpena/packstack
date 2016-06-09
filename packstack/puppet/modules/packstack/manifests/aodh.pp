@@ -33,7 +33,7 @@ class packstack::aodh ()
     }
 
     class { '::aodh::wsgi::apache':
-      workers => $service_workers,
+      workers => hiera('CONFIG_SERVICE_WORKERS'),
       ssl     => false
     }
 

@@ -28,8 +28,8 @@ class packstack::nova::api ()
       default_floating_pool                => $default_floating_pool,
       pci_alias                            => hiera('CONFIG_NOVA_PCI_ALIAS'),
       sync_db_api                          => true,
-      osapi_compute_workers                => $service_workers,
-      metadata_workers                     => $service_workers
+      osapi_compute_workers                => hiera('CONFIG_SERVICE_WORKERS'),
+      metadata_workers                     => hiera('CONFIG_SERVICE_WORKERS'),
     }
 
     Package<| title == 'nova-common' |> -> Class['nova::api']

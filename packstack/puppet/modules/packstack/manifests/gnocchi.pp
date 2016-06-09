@@ -4,7 +4,7 @@ class packstack::gnocchi ()
     $gnocchi_cfg_mariadb_host = hiera('CONFIG_MARIADB_HOST_URL')
 
     class { '::gnocchi::wsgi::apache':
-      workers => $service_workers,
+      workers => hiera('CONFIG_SERVICE_WORKERS'),
       ssl     => false
     }
 

@@ -54,7 +54,7 @@ class packstack::swift::proxy ()
       proxy_local_net_ip => hiera('CONFIG_STORAGE_HOST'),
       pipeline           => $swift_pipeline,
       account_autocreate => true,
-      workers => $service_workers
+      workers            => hiera('CONFIG_SERVICE_WORKERS'),
     }
 
     # configure all of the middlewares

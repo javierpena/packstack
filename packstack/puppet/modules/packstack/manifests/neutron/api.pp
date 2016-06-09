@@ -14,8 +14,8 @@ class packstack::neutron::api ()
       identity_uri        => hiera('CONFIG_KEYSTONE_ADMIN_URL'),
       sync_db             => true,
       enabled             => true,
-      api_workers         => $service_workers,
-      rpc_workers         => $service_workers,
+      api_workers         => hiera('CONFIG_SERVICE_WORKERS'),
+      rpc_workers         => hiera('CONFIG_SERVICE_WORKERS'),
       service_providers   => hiera_array('SERVICE_PROVIDERS'),
     }
 

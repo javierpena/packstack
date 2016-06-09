@@ -1,7 +1,7 @@
 class packstack::mariadb ()
 {
   if hiera('CONFIG_MARIADB_INSTALL') == 'y' {
-    $max_connections = $service_workers * 128
+    $max_connections = hiera('CONFIG_SERVICE_WORKERS') * 128
 
     if ($::mariadb_provides_galera == 'true') {
       # Since mariadb 10.1 galera is included in main mariadb

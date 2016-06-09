@@ -41,7 +41,7 @@ class packstack::keystone ()
     }
 
     class { '::keystone::wsgi::apache':
-      workers => $service_workers,
+      workers => hiera('CONFIG_SERVICE_WORKERS'),
       ssl     => $keystone_use_ssl
     }
 

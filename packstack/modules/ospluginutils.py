@@ -33,7 +33,6 @@ class ManifestFiles(object):
     def __init__(self):
         self.filelist = []
         self.data = {}
-        self.global_data = None
 
     # continuous manifest file that have the same marker can be
     # installed in parallel, if on different servers
@@ -61,15 +60,12 @@ class ManifestFiles(object):
         Write out the manifest data to disk, this should only be called once
         write before the puppet manifests are copied to the various servers
         """
-        if not self.global_data:
-            with open(os.path.join(PUPPET_TEMPLATE_DIR, "global.pp")) as gfp:
-                self.global_data = gfp.read() % controller.CONF
         os.mkdir(basedefs.PUPPET_MANIFEST_DIR, 0o700)
         for fname, data in self.data.items():
             path = os.path.join(basedefs.PUPPET_MANIFEST_DIR, fname)
             fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
             with os.fdopen(fd, 'w') as fp:
-                fp.write(self.global_data + data)
+                fp.write(data)
 manifestfiles = ManifestFiles()
 
 

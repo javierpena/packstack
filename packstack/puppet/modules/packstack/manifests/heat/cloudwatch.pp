@@ -1,6 +1,6 @@
 class packstack::heat::cloudwatch ()
 {
     class { '::heat::api_cloudwatch':
-      workers => $service_workers
+      workers => hiera('CONFIG_SERVICE_WORKERS'),
     }
 }

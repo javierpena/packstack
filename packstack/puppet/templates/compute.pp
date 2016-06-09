@@ -1,5 +1,7 @@
 stage { "init": before  => Stage["main"] }
 
+Exec { timeout => hiera('DEFAULT_EXEC_TIMEOUT') }
+
 class {'::packstack::prereqs': 
   stage => init, 
 }
@@ -38,9 +40,10 @@ if hiera('CONFIG_VMWARE_BACKEND') == 'y' and
 }
 
 if hiera('CONFIG_NEUTRON_INSTALL') == 'y' {
-# TODO: implement the following logic in puppet:
-#            if host not in network_hosts:
-#                manifestdata += getManifestTemplate('nova_compute_flat')
+  $network_hosts =  split(hiera('CONFIG_NETWORK_HOSTS'),',')
+  if member($network_hosts, choose_my_ip(hiera('HOST_LIST'))) {
+    include '::packstack::nova::compute::flat'
+  }
 }
 
 if hiera('CONFIG_NEUTRON_INSTALL') == 'y' {

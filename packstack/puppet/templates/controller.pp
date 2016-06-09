@@ -1,5 +1,7 @@
 stage { "init": before  => Stage["main"] }
 
+Exec { timeout => hiera('DEFAULT_EXEC_TIMEOUT') }
+
 class {'::packstack::prereqs': 
   stage => init, 
 }

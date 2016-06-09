@@ -16,7 +16,7 @@ class packstack::trove ()
       ca_file           => false,
       verbose           => true,
       debug             => hiera('CONFIG_DEBUG_MODE'),
-      workers           => $service_workers
+      workers           => hiera('CONFIG_SERVICE_WORKERS'),
     }
 
     class { '::trove::conductor':

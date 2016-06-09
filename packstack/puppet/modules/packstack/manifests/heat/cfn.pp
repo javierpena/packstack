@@ -1,7 +1,7 @@
 class packstack::heat::cfn ()
 {
     class { '::heat::api_cfn':
-      workers => $service_workers
+      workers => hiera('CONFIG_SERVICE_WORKERS'),
     }
 
     $heat_cfn_cfg_ctrl_host = hiera('CONFIG_KEYSTONE_HOST_URL')

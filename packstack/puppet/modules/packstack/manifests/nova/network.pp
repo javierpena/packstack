@@ -16,6 +16,12 @@ class packstack::nova::network ()
 
     $overrides = {}
 
+    $use_subnets_value = hiera('CONFIG_USE_SUBNETS')
+    $use_subnets = $use_subnets_value ? {
+      'y'     => true,
+      default => false,
+    }
+
     if $manager in $nova_net_manager_list {
       $overrides['force_dhcp_release'] = false
     }

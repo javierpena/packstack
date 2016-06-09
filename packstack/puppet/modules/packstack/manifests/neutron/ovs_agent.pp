@@ -1,6 +1,13 @@
 class packstack::neutron::ovs_agent ()
 {
     $neutron_ovs_tunnel_if = hiera('CONFIG_NEUTRON_OVS_TUNNEL_IF', undef)
+
+    $use_subnets_value = hiera('CONFIG_USE_SUBNETS')
+    $use_subnets = $use_subnets_value ? {
+      'y'     => true,
+      default => false,
+    }
+
     if $neutron_ovs_tunnel_if {
       $ovs_agent_vxlan_cfg_neut_ovs_tun_if = force_interface($neutron_ovs_tunnel_if, $use_subnets)
     } else {
