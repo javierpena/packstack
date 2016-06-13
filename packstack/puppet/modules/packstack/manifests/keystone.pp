@@ -1,5 +1,7 @@
 class packstack::keystone ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_KEYSTONE_RULES', {}))
+
     $keystone_use_ssl = false
     $keystone_cfg_ks_db_pw = hiera('CONFIG_KEYSTONE_DB_PW')
     $keystone_cfg_mariadb_host = hiera('CONFIG_MARIADB_HOST_URL')

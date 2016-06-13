@@ -1,5 +1,7 @@
 class packstack::heat::cfn ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_HEAT_CFN_RULES', {}))
+
     class { '::heat::api_cfn':
       workers => hiera('CONFIG_SERVICE_WORKERS'),
     }

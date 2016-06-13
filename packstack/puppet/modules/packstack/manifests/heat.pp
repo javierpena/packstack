@@ -1,5 +1,7 @@
 class packstack::heat ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_HEAT_RULES', {}))
+
     class { '::heat::api': }
 
     $keystone_admin = hiera('CONFIG_KEYSTONE_ADMIN_USERNAME')

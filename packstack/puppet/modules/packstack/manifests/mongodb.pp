@@ -1,5 +1,6 @@
 class packstack::mongodb ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_MONGODB_RULES', {}))
     $mongodb_host = hiera('CONFIG_MONGODB_HOST')
 
     # The MongoDB config files differ between versions

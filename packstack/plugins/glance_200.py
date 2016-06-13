@@ -22,8 +22,6 @@ from packstack.installer import processors
 from packstack.installer import utils
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------- Glance Packstack Plugin Initialization --------------
@@ -121,8 +119,6 @@ def create_manifest(config, messages):
         generate_ssl_cert(config, ssl_host, service, ssl_key_file,
                           ssl_cert_file)
 
-    manifestfile = "%s_firewall.pp" % config['CONFIG_STORAGE_HOST']
-
     fw_details = dict()
     key = "glance_api"
     fw_details.setdefault(key, {})
@@ -132,6 +128,3 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['9292']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_GLANCE_RULES'] = fw_details
-
-    manifestdata = createFirewallResources('FIREWALL_GLANCE_RULES')
-    appendManifestFile(manifestfile, manifestdata)

@@ -1,5 +1,9 @@
 class packstack::neutron::ovs_agent ()
 {
+    $my_ip = choose_my_ip(hiera('HOST_LIST'))
+    $neutron_tunnel_rule_name = "FIREWALL_NEUTRON_TUNNEL_RULES_${my_ip}"
+    create_resources(packstack::firewall, hiera($neutron_tunnel_rule_name, {}))
+
     $neutron_ovs_tunnel_if = hiera('CONFIG_NEUTRON_OVS_TUNNEL_IF', undef)
 
     $use_subnets_value = hiera('CONFIG_USE_SUBNETS')

@@ -29,8 +29,6 @@ from packstack.installer import validators
 from packstack.modules import common
 from packstack.modules.common import filtered_hosts
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import deliver_ssl_file
 from packstack.modules.ospluginutils import generate_ssl_cert
 
@@ -532,8 +530,6 @@ def create_api_manifest(config, messages):
     else:
         config['CONFIG_NEUTRON_METADATA_PW_UNQUOTED'] = "%s" % config['CONFIG_NEUTRON_METADATA_PW']
 
-    manifestfile = "%s_firewall.pp" % config['CONFIG_CONTROLLER_HOST']
-
     fw_details = dict()
     key = "nova_api"
     fw_details.setdefault(key, {})
@@ -543,9 +539,6 @@ def create_api_manifest(config, messages):
     fw_details[key]['ports'] = ['8773', '8774', '8775']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_NOVA_API_RULES'] = fw_details
-    manifestdata = createFirewallResources('FIREWALL_NOVA_API_RULES')
-
-    appendManifestFile(manifestfile, manifestdata, 'novaapi')
 
 
 def create_compute_manifest(config, messages):
@@ -626,9 +619,6 @@ def create_compute_manifest(config, messages):
             fw_details[key]['proto'] = "tcp"
 
         config[cf_fw_qemu_mig_key] = fw_details
-        manifestdata = createFirewallResources(cf_fw_qemu_mig_key)
-
-        manifestfile = "%s_firewall.pp" % host
 
         if config['CONFIG_NEUTRON_INSTALL'] != 'y':
             key = 'CONFIG_NOVA_COMPUTE_PRIVIF'
@@ -669,11 +659,6 @@ def create_compute_manifest(config, messages):
         fw_details[key]['ports'] = ['5900-5999']
         fw_details[key]['proto'] = "tcp"
         config['FIREWALL_NOVA_COMPUTE_RULES'] = fw_details
-
-        manifestdata += "\n" + createFirewallResources(
-            'FIREWALL_NOVA_COMPUTE_RULES'
-            )
-        appendManifestFile(manifestfile, manifestdata)
 
 
 def create_network_manifest(config, messages):

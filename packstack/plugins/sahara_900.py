@@ -22,8 +22,6 @@ from packstack.installer import validators
 from packstack.installer import processors
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------------ Sahara installer initialization ------------------
@@ -99,8 +97,6 @@ def create_manifest(config, messages):
         generate_ssl_cert(config, ssl_host, service, ssl_key_file,
                           ssl_cert_file)
 
-    manifestfile = "%s_firewall.pp" % config['CONFIG_STORAGE_HOST']
-
     fw_details = dict()
     key = "sahara-api"
     fw_details.setdefault(key, {})
@@ -110,6 +106,3 @@ def create_manifest(config, messages):
     fw_details[key]["ports"] = ["8386"]
     fw_details[key]["proto"] = "tcp"
     config["FIREWALL_SAHARA_CFN_RULES"] = fw_details
-
-    manifestdata = createFirewallResources("FIREWALL_SAHARA_CFN_RULES")
-    appendManifestFile(manifestfile, manifestdata, marker='sahara')

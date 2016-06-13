@@ -1,5 +1,7 @@
 class packstack::manila ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_MANILA_API_RULES', {}))
+
     manila_config {
       'DEFAULT/glance_host': value => hiera('CONFIG_STORAGE_HOST_URL');
     }

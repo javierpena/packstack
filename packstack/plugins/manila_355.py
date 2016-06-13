@@ -22,8 +22,6 @@ from packstack.installer import validators
 from packstack.installer import utils
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------- Manila Packstack Plugin Initialization --------------
@@ -626,8 +624,6 @@ def create_manifest(config, messages):
         elif config[key].lower() == "false":
             config[key] = False
 
-    manifestfile = "%s_firewall.pp" % config['CONFIG_STORAGE_HOST']
-
     # manila API should be open for everyone
     fw_details = dict()
     key = "manila_api"
@@ -638,6 +634,3 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['8786']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_MANILA_API_RULES'] = fw_details
-    manifestdata = createFirewallResources('FIREWALL_MANILA_API_RULES')
-
-    appendManifestFile(manifestfile, manifestdata, marker='manila')

@@ -24,8 +24,6 @@ from packstack.installer import processors
 from packstack.installer import utils
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 
 # ------------- Keystone Packstack Plugin Initialization --------------
 
@@ -765,8 +763,6 @@ def munge_ldap_config_params(config, messages):
 
 
 def create_manifest(config, messages):
-    manifestfile = "%s_firewall.pp" % config['CONFIG_CONTROLLER_HOST']
-
     if config['CONFIG_IP_VERSION'] == 'ipv6':
         host = config['CONFIG_CONTROLLER_HOST']
         config['CONFIG_KEYSTONE_HOST_URL'] = "[%s]" % host
@@ -790,6 +786,3 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['5000', '35357']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_KEYSTONE_RULES'] = fw_details
-
-    manifestdata = createFirewallResources('FIREWALL_KEYSTONE_RULES')
-    appendManifestFile(manifestfile, manifestdata)

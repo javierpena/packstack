@@ -1,5 +1,7 @@
 class packstack::trove ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_TROVE_API_RULES', {}))
+
     $bind_host = hiera('CONFIG_IP_VERSION') ? {
       'ipv6'  => '::0',
       default => '0.0.0.0',

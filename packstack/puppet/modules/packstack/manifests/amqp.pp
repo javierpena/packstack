@@ -1,5 +1,6 @@
 define enable_rabbitmq {
   ensure_packages(['erlang'], {'ensure' => 'present'})
+  create_resources(packstack::firewall, hiera('FIREWALL_AMQP_RULES', {}))
 
   if $::amqp_enable_ssl {
     $kombu_ssl_ca_certs = hiera('CONFIG_AMQP_SSL_CACERT_FILE', undef)

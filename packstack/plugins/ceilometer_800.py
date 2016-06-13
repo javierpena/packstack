@@ -25,8 +25,6 @@ from packstack.installer import processors
 from packstack.installer.utils import split_hosts
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------- Ceilometer Packstack Plugin Initialization --------------
@@ -112,18 +110,18 @@ def initConfig(controller):
              "CONDITION": False},
         ],
         "REDIS": [
-            {"CMD_OPTION": "redis-master-host",
-             "PROMPT": "Enter the host for the Redis master server",
+            {"CMD_OPTION": "redis-host",
+             "PROMPT": "Enter the host for the Redis server",
              "OPTION_LIST": [],
              "VALIDATORS": [validators.validate_ssh],
              "DEFAULT_VALUE": utils.get_localhost_ip(),
              "MASK_INPUT": False,
              "LOOSE_VALIDATION": False,
-             "CONF_NAME": "CONFIG_REDIS_MASTER_HOST",
+             "CONF_NAME": "CONFIG_REDIS_HOST",
              "USE_DEFAULT": False,
              "NEED_CONFIRM": False,
              "CONDITION": False,
-             "DEPRECATES": ["CONFIG_REDIS_HOST"]},
+             "DEPRECATES": ["CONFIG_REDIS_MASTER_HOST"]},
             {"CMD_OPTION": "redis-port",
              "PROMPT": "Enter the port of the redis server(s)",
              "OPTION_LIST": [],
@@ -132,87 +130,6 @@ def initConfig(controller):
              "MASK_INPUT": False,
              "LOOSE_VALIDATION": False,
              "CONF_NAME": "CONFIG_REDIS_PORT",
-             "USE_DEFAULT": False,
-             "NEED_CONFIRM": False,
-             "CONDITION": False},
-            {"CMD_OPTION": "redis-ha",
-             "PROMPT": "Should redis try to use HA?",
-             "OPTION_LIST": ["y", "n"],
-             "VALIDATORS": [validators.validate_options],
-             "DEFAULT_VALUE": "n",
-             "MASK_INPUT": False,
-             "LOOSE_VALIDATION": False,
-             "CONF_NAME": "CONFIG_REDIS_HA",
-             "USE_DEFAULT": False,
-             "NEED_CONFIRM": False,
-             "CONDITION": False},
-            {"CMD_OPTION": "redis-slaves",
-             "PROMPT": "Enter the host for the redis slave servers",
-             "OPTION_LIST": [],
-             "VALIDATORS": [validators.validate_multi_ssh],
-             "DEFAULT_VALUE": "",
-             "MASK_INPUT": False,
-             "LOOSE_VALIDATION": False,
-             "CONF_NAME": "CONFIG_REDIS_SLAVE_HOSTS",
-             "USE_DEFAULT": False,
-             "NEED_CONFIRM": False,
-             "CONDITION": False},
-            {"CMD_OPTION": "redis-sentinels",
-             "PROMPT": "Enter the host for the redis sentinel servers",
-             "OPTION_LIST": [],
-             "VALIDATORS": [validators.validate_multi_ssh],
-             "DEFAULT_VALUE": "",
-             "MASK_INPUT": False,
-             "LOOSE_VALIDATION": False,
-             "CONF_NAME": "CONFIG_REDIS_SENTINEL_HOSTS",
-             "USE_DEFAULT": False,
-             "NEED_CONFIRM": False,
-             "CONDITION": False},
-            {"CMD_OPTION": "redis-sentinel-contact",
-             "PROMPT":
-                 "Enter the IP address of the coordination redis sentinel",
-             "OPTION_LIST": [],
-             "VALIDATORS": [validators.validate_ssh],
-             "DEFAULT_VALUE": "",
-             "MASK_INPUT": False,
-             "LOOSE_VALIDATION": False,
-             "CONF_NAME": "CONFIG_REDIS_SENTINEL_CONTACT_HOST",
-             "USE_DEFAULT": False,
-             "NEED_CONFIRM": False,
-             "CONDITION": False},
-            {"CMD_OPTION": "redis-sentinel-port",
-             "PROMPT": ("Enter the port on which the redis sentinel servers"
-                        " listen"),
-             "OPTION_LIST": [],
-             "VALIDATORS": [validators.validate_port],
-             "DEFAULT_VALUE": 26379,
-             "MASK_INPUT": False,
-             "LOOSE_VALIDATION": False,
-             "CONF_NAME": "CONFIG_REDIS_SENTINEL_PORT",
-             "USE_DEFAULT": False,
-             "NEED_CONFIRM": False,
-             "CONDITION": False},
-            {"CMD_OPTION": "redis-sentinel-quorum",
-             "PROMPT": (
-                 "Enter the quorum value for the redis sentinel servers"),
-             "OPTION_LIST": [],
-             "VALIDATORS": [validators.validate_integer],
-             "DEFAULT_VALUE": 2,
-             "MASK_INPUT": False,
-             "LOOSE_VALIDATION": False,
-             "CONF_NAME": "CONFIG_REDIS_SENTINEL_QUORUM",
-             "USE_DEFAULT": False,
-             "NEED_CONFIRM": False,
-             "CONDITION": False},
-            {"CMD_OPTION": "redis-sentinel-master-name",
-             "PROMPT": (
-                 "Enter the logical name of the master server"),
-             "OPTION_LIST": [r'[a-z]+'],
-             "VALIDATORS": [validators.validate_regexp],
-             "DEFAULT_VALUE": 'mymaster',
-             "MASK_INPUT": False,
-             "LOOSE_VALIDATION": False,
-             "CONF_NAME": "CONFIG_REDIS_MASTER_NAME",
              "USE_DEFAULT": False,
              "NEED_CONFIRM": False,
              "CONDITION": False},
@@ -264,8 +181,6 @@ def initSequences(controller):
 # -------------------------- step functions --------------------------
 
 def create_manifest(config, messages):
-    manifestfile = "%s_firewall.pp" % config['CONFIG_CONTROLLER_HOST']
-
     if config['CONFIG_CEILOMETER_COORDINATION_BACKEND'] == 'redis':
         # Determine if we need to configure multiple sentinel hosts as
         # fallbacks for use in coordination url.
@@ -313,9 +228,6 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['8777']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_CEILOMETER_RULES'] = fw_details
-    manifestdata = createFirewallResources('FIREWALL_CEILOMETER_RULES')
-
-    appendManifestFile(manifestfile, manifestdata, 'ceilometer')
 
 
 def create_mongodb_manifest(config, messages):
@@ -324,8 +236,6 @@ def create_mongodb_manifest(config, messages):
         config['CONFIG_MONGODB_HOST_URL'] = "[%s]" % host
     else:
         config['CONFIG_MONGODB_HOST_URL'] = host
-
-    manifestfile = "%s_firewall.pp" % config['CONFIG_MONGODB_HOST']
 
     fw_details = dict()
     key = "mongodb_server"
@@ -337,62 +247,19 @@ def create_mongodb_manifest(config, messages):
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_MONGODB_RULES'] = fw_details
 
-    manifestdata = createFirewallResources('FIREWALL_MONGODB_RULES')
-    appendManifestFile(manifestfile, manifestdata, 'pre')
-
 
 def create_redis_manifest(config, messages):
     if config['CONFIG_CEILOMETER_COORDINATION_BACKEND'] == 'redis':
-        redis_master_host = config['CONFIG_REDIS_MASTER_HOST']
+        redis_host = config['CONFIG_REDIS_HOST']
         if config['CONFIG_IP_VERSION'] == 'ipv6':
-            config['CONFIG_REDIS_MASTER_HOST_URL'] = "[%s]" % redis_master_host
+            config['CONFIG_REDIS_HOST_URL'] = "[%s]" % redis_host
         else:
-            config['CONFIG_REDIS_MASTER_HOST_URL'] = redis_master_host
+            config['CONFIG_REDIS_HOST_URL'] = redis_host
 
         # master
-        manifestfile = "%s_firewall.pp" % config['CONFIG_REDIS_MASTER_HOST']
-        master_clients = set([config['CONFIG_CONTROLLER_HOST']]).union(
-            split_hosts(config['CONFIG_REDIS_SLAVE_HOSTS'])).union(
-            split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']))
+        master_clients = set([config['CONFIG_CONTROLLER_HOST']])
         config['FIREWALL_REDIS_RULES'] = _create_redis_firewall_rules(
             master_clients, config['CONFIG_REDIS_PORT'])
-
-        manifestdata = createFirewallResources('FIREWALL_REDIS_RULES')
-        appendManifestFile(manifestfile, manifestdata, 'pre')
-
-        # TODO(jpena): we are disabling redis slave support for now
-        # slaves
-        # if config['CONFIG_REDIS_HA'] == 'y':
-        #    for slave in split_hosts(config['CONFIG_REDIS_SLAVE_HOSTS']):
-        #        config['CONFIG_REDIS_HOST'] = slave
-        #        manifestfile = "%s_redis_slave.pp" % slave
-        #        manifestdata = getManifestTemplate("redis_slave.pp")
-        #
-        #        slave_clients = set([config['CONFIG_CONTROLLER_HOST']]).union(
-        #            split_hosts(config['CONFIG_REDIS_SLAVE_HOSTS'])).union(
-        #                split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']))
-        #        config['FIREWALL_REDIS_SLAVE_RULES'] = (
-        #            _create_redis_firewall_rules(
-        #                slave_clients, config['CONFIG_REDIS_PORT']))
-        #
-        #        manifestdata += createFirewallResources(
-        #            'FIREWALL_REDIS_SLAVE_RULES')
-        #        appendManifestFile(manifestfile, manifestdata, 'pre')
-
-        # sentinels
-        # if config['CONFIG_REDIS_HA'] == 'y':
-        #    for sentinel in split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']):
-        #        manifestfile = "%s_redis_sentinel.pp" % sentinel
-        #        manifestdata = getManifestTemplate("redis_sentinel.pp")
-        #
-        #        config['FIREWALL_SENTINEL_RULES'] = (
-        #            _create_redis_firewall_rules(
-        #                split_hosts(config['CONFIG_REDIS_SENTINEL_HOSTS']),
-        #                config['CONFIG_REDIS_SENTINEL_PORT']))
-        #
-        #        manifestdata += createFirewallResources(
-        #            'FIREWALL_SENTINEL_RULES')
-        #        appendManifestFile(manifestfile, manifestdata, 'pre')
 
 
 # ------------------------- helper functions -------------------------

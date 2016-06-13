@@ -23,8 +23,6 @@ from packstack.installer import utils
 
 from packstack.modules.documentation import update_params_usage
 from packstack.modules.common import filtered_hosts
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 
 # ------------- Nagios Packstack Plugin Initialization --------------
 
@@ -95,7 +93,6 @@ def create_manifest(config, messages):
 def create_nrpe_manifests(config, messages):
     for hostname in filtered_hosts(config):
         config['CONFIG_NRPE_HOST'] = hostname
-        manifestfile = "%s_firewall.pp" % hostname
 
         # Only the Nagios host is allowed to talk to nrpe
         fw_details = dict()
@@ -107,9 +104,6 @@ def create_nrpe_manifests(config, messages):
         fw_details[key]['ports'] = ['5666']
         fw_details[key]['proto'] = "tcp"
         config['FIREWALL_NAGIOS_NRPE_RULES'] = fw_details
-
-        manifestdata = createFirewallResources('FIREWALL_NAGIOS_NRPE_RULES')
-        appendManifestFile(manifestfile, manifestdata)
 
     messages.append("To use Nagios, browse to "
                     "http://%(CONFIG_CONTROLLER_HOST)s/nagios "

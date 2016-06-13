@@ -1,5 +1,7 @@
 class packstack::glance () 
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_GLANCE_RULES', {}))
+
     $glance_ks_pw = hiera('CONFIG_GLANCE_DB_PW')
     $glance_mariadb_host = hiera('CONFIG_MARIADB_HOST_URL')
     $glance_cfg_ctrl_host = hiera('CONFIG_KEYSTONE_HOST_URL')

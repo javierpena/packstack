@@ -27,8 +27,6 @@ from packstack.installer.utils import split_hosts
 from packstack.installer import utils
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------------ Cinder Packstack Plugin initialization ------------------
@@ -727,8 +725,6 @@ def create_manifest(config, messages):
         generate_ssl_cert(config, ssl_host, service, ssl_key_file,
                           ssl_cert_file)
 
-    manifestfile = "%s_firewall.pp" % config['CONFIG_STORAGE_HOST']
-
     fw_details = dict()
     for host in split_hosts(config['CONFIG_COMPUTE_HOSTS']):
         if (config['CONFIG_NOVA_INSTALL'] == 'y' and
@@ -747,7 +743,6 @@ def create_manifest(config, messages):
         fw_details[key]['proto'] = "tcp"
 
     config['FIREWALL_CINDER_RULES'] = fw_details
-    manifestdata = createFirewallResources('FIREWALL_CINDER_RULES')
 
     # cinder API should be open for everyone
     fw_details = dict()
@@ -759,6 +754,3 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['8776']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_CINDER_API_RULES'] = fw_details
-    manifestdata += createFirewallResources('FIREWALL_CINDER_API_RULES')
-
-    appendManifestFile(manifestfile, manifestdata)

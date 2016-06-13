@@ -1,5 +1,10 @@
 class packstack::nova::compute ()
 {
+    $my_ip = choose_my_ip(hiera('HOST_LIST'))
+    $qemu_rule_name = "FIREWALL_NOVA_QEMU_MIG_RULES_${my_ip}"
+    create_resources(packstack::firewall, hiera($qemu_rule_name, {}))
+    create_resources(packstack::firewall, hiera('FIREWALL_NOVA_COMPUTE_RULES', {}))
+
     ensure_packages(['python-cinderclient'], {'ensure' => 'present'})
     Package['python-cinderclient'] -> Class['nova']
 

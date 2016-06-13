@@ -1,5 +1,8 @@
 class packstack::cinder ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_CINDER_RULES', {}))
+    create_resources(packstack::firewall, hiera('FIREWALL_CINDER_API_RULES', {}))
+
     cinder_config {
       'DEFAULT/glance_host': value => hiera('CONFIG_STORAGE_HOST_URL');
     }

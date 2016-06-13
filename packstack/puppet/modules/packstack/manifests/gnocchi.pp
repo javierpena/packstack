@@ -1,5 +1,7 @@
 class packstack::gnocchi ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_GNOCCHI_RULES', {}))
+
     $gnocchi_cfg_db_pw = hiera('CONFIG_GNOCCHI_DB_PW')
     $gnocchi_cfg_mariadb_host = hiera('CONFIG_MARIADB_HOST_URL')
 

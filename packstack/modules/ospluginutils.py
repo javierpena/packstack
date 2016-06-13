@@ -93,11 +93,6 @@ def generateHieraDataFile():
     os.symlink(os.path.basename(HIERA_COMMON_YAML), HIERA_DEFAULTS_YAML)
 
 
-def createFirewallResources(hiera_key, default_value='{}'):
-    hiera_function = "hiera('%s', %s)" % (hiera_key, default_value)
-    return "create_resources(packstack::firewall, %s)\n\n" % hiera_function
-
-
 def generate_ssl_cert(config, host, service, ssl_key_file, ssl_cert_file):
     """
     Wrapper on top of openssl

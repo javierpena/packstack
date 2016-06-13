@@ -1,6 +1,7 @@
 class packstack::mariadb ()
 {
   if hiera('CONFIG_MARIADB_INSTALL') == 'y' {
+    create_resources(packstack::firewall, hiera('FIREWALL_MARIADB_RULES', {}))
     $max_connections = hiera('CONFIG_SERVICE_WORKERS') * 128
 
     if ($::mariadb_provides_galera == 'true') {

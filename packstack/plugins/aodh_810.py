@@ -22,8 +22,6 @@ from packstack.installer import validators
 from packstack.installer import processors
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------- Aodh Packstack Plugin Initialization --------------
@@ -83,8 +81,6 @@ def initSequences(controller):
 # -------------------------- step functions --------------------------
 
 def create_manifest(config, messages):
-    manifestfile = "%s_firewall.pp" % config['CONFIG_CONTROLLER_HOST']
-
     if config['CONFIG_AMQP_ENABLE_SSL'] == 'y':
         ssl_cert_file = config['CONFIG_AODH_SSL_CERT'] = (
             '/etc/pki/tls/certs/ssl_amqp_aodh.crt'
@@ -106,5 +102,3 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['8042']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_AODH_RULES'] = fw_details
-    manifestdata = createFirewallResources('FIREWALL_AODH_RULES')
-    appendManifestFile(manifestfile, manifestdata, 'aodh')

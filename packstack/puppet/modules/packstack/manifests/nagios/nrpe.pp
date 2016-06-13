@@ -1,5 +1,6 @@
 class packstack::nagios::nrpe ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_NAGIOS_NRPE_RULES', {}))
     $nagios_configs_cfg_ctrl_host = hiera('CONFIG_CONTROLLER_HOST')
     package{ 'nrpe':
       ensure => present,

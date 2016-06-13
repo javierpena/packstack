@@ -22,8 +22,6 @@ from packstack.installer import validators
 from packstack.installer import processors
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------------ Trove Packstack Plugin initialization ------------------
@@ -149,8 +147,6 @@ def create_manifest(config, messages):
             config['CONFIG_TROVE_NOVA_PW'] == ''):
         config['CONFIG_TROVE_NOVA_PW'] = config['CONFIG_TROVE_KS_PW']
 
-    manifestfile = "%s_firewall.pp" % config["CONFIG_CONTROLLER_HOST"]
-
     fw_details = dict()
     key = "trove"
     fw_details.setdefault(key, {})
@@ -160,6 +156,3 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['8779']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_TROVE_API_RULES'] = fw_details
-
-    manifestdata = createFirewallResources('FIREWALL_TROVE_API_RULES')
-    appendManifestFile(manifestfile, manifestdata, marker='trove')

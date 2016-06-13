@@ -23,8 +23,6 @@ from packstack.installer import utils
 
 from packstack.modules.common import filtered_hosts
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------- AMQP Packstack Plugin Initialization --------------
@@ -203,7 +201,3 @@ def create_manifest(config, messages):
         fw_details[key]['ports'] = ['5671', '5672']
         fw_details[key]['proto'] = "tcp"
     config['FIREWALL_AMQP_RULES'] = fw_details
-
-    manifestfile = "%s_firewall.pp" % config['CONFIG_AMQP_HOST']
-    manifestdata = createFirewallResources('FIREWALL_AMQP_RULES')
-    appendManifestFile(manifestfile, manifestdata, 'pre')

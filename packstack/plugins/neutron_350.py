@@ -25,8 +25,6 @@ from packstack.installer.utils import split_hosts
 
 from packstack.modules import common
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 from packstack.modules.ospluginutils import generate_ssl_cert
 
 # ------------- Neutron Packstack Plugin Initialization --------------
@@ -578,9 +576,8 @@ def get_values(val):
     return [x.strip() for x in val.split(',')] if val else []
 
 
-def tunnel_fw_details(config, host, src):
+def tunnel_fw_details(config, host, src, fw_details):
     key = "neutron_tunnel_%s_%s" % (host, src)
-    fw_details = dict()
     fw_details.setdefault(key, {})
     fw_details[key]['host'] = "%s" % src
     fw_details[key]['service_name'] = "neutron tunnel port"
@@ -592,7 +589,6 @@ def tunnel_fw_details(config, host, src):
         fw_details[key]['proto'] = 'gre'
         tun_port = None
     fw_details[key]['ports'] = tun_port
-    return fw_details
 
 
 # -------------------------- step functions --------------------------
@@ -628,7 +624,7 @@ def create_manifests(config, messages):
                                  else 'undef')
 
     config['SERVICE_PROVIDERS'] = (service_providers if service_providers
-                                 else [])
+                                   else [])
 
     config['FIREWALL_DRIVER'] = ("neutron.agent.linux.iptables_firewall."
                                  "OVSHybridIptablesFirewallDriver")
@@ -649,9 +645,7 @@ def create_manifests(config, messages):
             generate_ssl_cert(config, host, service, ssl_key_file,
                               ssl_cert_file)
 
-        manifest_file = "%s_firewall.pp" % (host,)
         if host in api_hosts:
-
             # Firewall
             fw_details = dict()
             key = "neutron_server_%s" % host
@@ -663,33 +657,24 @@ def create_manifests(config, messages):
             fw_details[key]['proto'] = "tcp"
             config['FIREWALL_NEUTRON_SERVER_RULES'] = fw_details
 
-            manifest_data = createFirewallResources(
-                'FIREWALL_NEUTRON_SERVER_RULES'
-            )
-            appendManifestFile(manifest_file, manifest_data, 'neutron')
-
         # We also need to open VXLAN/GRE port for agent
-        manifest_data = ""
         if use_openvswitch_vxlan(config) or use_openvswitch_gre(config):
             if config['CONFIG_IP_VERSION'] == 'ipv6':
                 msg = output_messages.WARN_IPV6_OVS
                 messages.append(utils.color_text(msg % host, 'red'))
-
+            fw_details = dict()
             if (config['CONFIG_NEUTRON_OVS_TUNNEL_SUBNETS']):
                 tunnel_subnets = map(
                     str.strip,
                     config['CONFIG_NEUTRON_OVS_TUNNEL_SUBNETS'].split(',')
                 )
+                cf_fw_nt_key = ("FIREWALL_NEUTRON_TUNNEL_RULES_%s" % host)
                 for subnet in tunnel_subnets:
-                    cf_fw_nt_key = ("FIREWALL_NEUTRON_TUNNEL_RULES_%s_%s"
-                                    % (host, subnet))
-                    config[cf_fw_nt_key] = tunnel_fw_details(config,
-                                                             host, subnet)
-                    manifest_data += createFirewallResources(cf_fw_nt_key)
+                    tunnel_fw_details(config, host, subnet, fw_details)
+                config[cf_fw_nt_key] = fw_details
             else:
+                cf_fw_nt_key = ("FIREWALL_NEUTRON_TUNNEL_RULES_%s" % host)
                 for n_host in network_hosts | compute_hosts:
-                    cf_fw_nt_key = ("FIREWALL_NEUTRON_TUNNEL_RULES_%s_%s"
-                                    % (host, n_host))
                     if config['CONFIG_NEUTRON_OVS_TUNNEL_IF']:
                         if config['CONFIG_USE_SUBNETS'] == 'y':
                             iface = common.cidr_to_ifname(
@@ -706,11 +691,8 @@ def create_manifests(config, messages):
                                            (iface, n_host))
                     else:
                         src_host = n_host
-                    config[cf_fw_nt_key] = tunnel_fw_details(config,
-                                                             host, src_host)
-                    manifest_data += createFirewallResources(cf_fw_nt_key)
-
-            appendManifestFile(manifest_file, manifest_data, 'neutron')
+                    tunnel_fw_details(config, host, src_host, fw_details)
+                config[cf_fw_nt_key] = fw_details
 
 
 def create_l3_manifests(config, messages):
@@ -742,7 +724,6 @@ def create_dhcp_manifests(config, messages):
         config["CONFIG_NEUTRON_DHCP_HOST"] = host
         config['CONFIG_NEUTRON_DHCP_INTERFACE_DRIVER'] = get_if_driver(config)
 
-        manifest_file = "%s_firewall.pp" % (host,)
         # Firewall Rules for dhcp in
         fw_details = dict()
         key = "neutron_dhcp_in_%s" % host
@@ -753,9 +734,6 @@ def create_dhcp_manifests(config, messages):
         fw_details[key]['ports'] = ['67']
         fw_details[key]['proto'] = "udp"
         config['FIREWALL_NEUTRON_DHCPIN_RULES'] = fw_details
-        manifest_data = createFirewallResources(
-            'FIREWALL_NEUTRON_DHCPIN_RULES'
-        )
 
         # Firewall Rules for dhcp out
         fw_details = dict()
@@ -767,11 +745,6 @@ def create_dhcp_manifests(config, messages):
         fw_details[key]['ports'] = ['68']
         fw_details[key]['proto'] = "udp"
         config['FIREWALL_NEUTRON_DHCPOUT_RULES'] = fw_details
-        manifest_data += createFirewallResources(
-            'FIREWALL_NEUTRON_DHCPOUT_RULES'
-        )
-
-        appendManifestFile(manifest_file, manifest_data, 'neutron')
 
 
 def create_lbaas_manifests(config, messages):

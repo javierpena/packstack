@@ -22,8 +22,6 @@ from packstack.installer import validators
 from packstack.installer import processors
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 
 # ------------- Gnocchi Packstack Plugin Initialization --------------
 
@@ -94,8 +92,6 @@ def initSequences(controller):
 # -------------------------- step functions --------------------------
 
 def create_manifest(config, messages):
-    manifestfile = "%s_firewall.pp" % config['CONFIG_CONTROLLER_HOST']
-
     fw_details = dict()
     key = "gnocchi_api"
     fw_details.setdefault(key, {})
@@ -105,5 +101,3 @@ def create_manifest(config, messages):
     fw_details[key]['ports'] = ['8041']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_GNOCCHI_RULES'] = fw_details
-    manifestdata = createFirewallResources('FIREWALL_GNOCCHI_RULES')
-    appendManifestFile(manifestfile, manifestdata, 'gnocchi')

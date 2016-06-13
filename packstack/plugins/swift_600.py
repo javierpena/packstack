@@ -28,8 +28,6 @@ from packstack.installer import utils
 from packstack.installer.utils import split_hosts
 
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 
 # ------------- Swift Packstack Plugin Initialization --------------
 
@@ -278,8 +276,6 @@ def create_builder_manifest(config, messages):
 
 
 def create_proxy_manifest(config, messages):
-    manifestfile = "%s_firewall.pp" % config['CONFIG_STORAGE_HOST']
-
     fw_details = dict()
     key = "swift_proxy"
     fw_details.setdefault(key, {})
@@ -289,9 +285,6 @@ def create_proxy_manifest(config, messages):
     fw_details[key]['ports'] = ['8080']
     fw_details[key]['proto'] = "tcp"
     config['FIREWALL_SWIFT_PROXY_RULES'] = fw_details
-
-    manifestdata = createFirewallResources('FIREWALL_SWIFT_PROXY_RULES')
-    appendManifestFile(manifestfile, manifestdata)
 
 
 def create_storage_manifest(config, messages):
@@ -316,8 +309,6 @@ def create_storage_manifest(config, messages):
             swift_dev_details[key]['fstype'] = "%s" % fstype
     config['CONFIG_SWIFT_STORAGE_DEVICES'] = swift_dev_details
 
-    manifestfile = "%s_firewall.pp" % config['CONFIG_STORAGE_HOST']
-
     # set allowed hosts for firewall
     hosts = set([config['CONFIG_STORAGE_HOST']])
     if config['CONFIG_NOVA_INSTALL'] == 'y':
@@ -333,6 +324,3 @@ def create_storage_manifest(config, messages):
         fw_details[key]['ports'] = ['6000', '6001', '6002', '873']
         fw_details[key]['proto'] = "tcp"
     config['FIREWALL_SWIFT_STORAGE_RULES'] = fw_details
-
-    manifestdata = createFirewallResources('FIREWALL_SWIFT_STORAGE_RULES')
-    appendManifestFile(manifestfile, manifestdata)

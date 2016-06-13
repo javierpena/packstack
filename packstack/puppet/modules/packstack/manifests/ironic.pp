@@ -1,5 +1,7 @@
 class packstack::ironic ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_IRONIC_API_RULES', {}))
+
     ironic_config {
       'glance/glance_host': value => hiera('CONFIG_STORAGE_HOST_URL');
     }

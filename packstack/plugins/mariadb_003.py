@@ -23,8 +23,6 @@ from packstack.installer import utils
 
 from packstack.modules.common import filtered_hosts
 from packstack.modules.documentation import update_params_usage
-from packstack.modules.ospluginutils import appendManifestFile
-from packstack.modules.ospluginutils import createFirewallResources
 
 # ------------- MariaDB Packstack Plugin Initialization --------------
 
@@ -107,8 +105,6 @@ def create_manifest(config, messages):
     else:
         config['CONFIG_MARIADB_HOST_URL'] = host
 
-    manifestfile = "%s_firewall.pp" % host
-
     fw_details = dict()
     for host in filtered_hosts(config, exclude=False, dbhost=True):
         key = "mariadb_%s" % host
@@ -119,6 +115,3 @@ def create_manifest(config, messages):
         fw_details[key]['ports'] = ['3306']
         fw_details[key]['proto'] = "tcp"
     config['FIREWALL_MARIADB_RULES'] = fw_details
-
-    manifestdata = createFirewallResources('FIREWALL_MARIADB_RULES')
-    appendManifestFile(manifestfile, manifestdata, 'pre')

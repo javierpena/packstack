@@ -1,5 +1,6 @@
 class packstack::swift::proxy ()
 {
+    create_resources(packstack::firewall, hiera('FIREWALL_SWIFT_PROXY_RULES', {}))
     ensure_packages(['curl'], {'ensure' => 'present'})
 
     $bind_host = hiera('CONFIG_IP_VERSION') ? {
