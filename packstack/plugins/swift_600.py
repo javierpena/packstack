@@ -141,11 +141,11 @@ def initSequences(controller):
         return
 
     steps = [
-        {'title': 'Adding Swift builder manifest entries',
+        {'title': 'Preparing Swift builder entries',
          'functions': [create_builder_manifest]},
-        {'title': 'Adding Swift proxy manifest entries',
+        {'title': 'Preparing Swift proxy entries',
          'functions': [create_proxy_manifest]},
-        {'title': 'Adding Swift storage manifest entries',
+        {'title': 'Preparing Swift storage entries',
          'functions': [create_storage_manifest]},
     ]
     controller.addSequence("Installing OpenStack Swift", [], [], steps)

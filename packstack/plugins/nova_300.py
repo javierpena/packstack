@@ -387,29 +387,29 @@ def initSequences(controller):
         return
 
     if controller.CONF['CONFIG_NEUTRON_INSTALL'] == 'y':
-        network_title = ('Adding OpenStack Network-related '
-                         'Nova manifest entries')
+        network_title = ('Preparing OpenStack Network-related '
+                         'Nova entries')
         network_function = create_neutron_manifest
     else:
-        network_title = 'Adding Nova Network manifest entries'
+        network_title = 'Preparing Nova Network entries'
         network_function = create_network_manifest
 
     novaapisteps = [
-        {'title': 'Adding Nova API manifest entries',
+        {'title': 'Preparing Nova API entries',
          'functions': [create_api_manifest]},
         {'title': 'Creating ssh keys for Nova migration',
          'functions': [create_ssh_keys]},
         {'title': 'Gathering ssh host keys for Nova migration',
          'functions': [gather_host_keys]},
-        {'title': 'Adding Nova Compute manifest entries',
+        {'title': 'Preparing Nova Compute entries',
          'functions': [create_compute_manifest]},
-        {'title': 'Adding Nova Scheduler manifest entries',
+        {'title': 'Preparing Nova Scheduler entries',
          'functions': [create_sched_manifest]},
-        {'title': 'Adding Nova VNC Proxy manifest entries',
+        {'title': 'Preparing Nova VNC Proxy entries',
          'functions': [create_vncproxy_manifest]},
         {'title': network_title,
          'functions': [network_function]},
-        {'title': 'Adding Nova Common manifest entries',
+        {'title': 'Preparing Nova Common entries',
          'functions': [create_common_manifest]},
     ]
 

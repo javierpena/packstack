@@ -715,7 +715,7 @@ def initSequences(controller):
         {'title':
          'Fixing Keystone LDAP config parameters to be undef if empty',
          'functions': [munge_ldap_config_params]},
-        {'title': 'Adding Keystone manifest entries',
+        {'title': 'Preparing Keystone entries',
          'functions': [create_manifest]},
     ]
     controller.addSequence("Installing OpenStack Keystone", [], [],

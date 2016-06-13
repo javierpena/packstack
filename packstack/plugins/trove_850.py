@@ -122,7 +122,7 @@ def initSequences(controller):
         return
 
     steps = [
-        {'title': 'Adding Trove manifest entries',
+        {'title': 'Preparing Trove entries',
          'functions': [create_manifest]}
     ]
 

@@ -74,7 +74,7 @@ def initSequences(controller):
         return
 
     saharasteps = [
-        {"title": "Adding Sahara manifest entries",
+        {"title": "Preparing Sahara entries",
          "functions": [create_manifest]},
     ]
     controller.addSequence("Installing Sahara", [], [], saharasteps)

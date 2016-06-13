@@ -80,10 +80,6 @@ def appendManifestFile(manifest_name, data, marker=''):
     manifestfiles.addFile(manifest_name, marker, data)
 
 
-def prependManifestFile(manifest_name, data, marker=''):
-    manifestfiles.prependFile(manifest_name, marker, data)
-
-
 def generateHieraDataFile():
     os.mkdir(basedefs.HIERADATA_DIR, 0o700)
     with open(HIERA_COMMON_YAML, 'w') as outfile:

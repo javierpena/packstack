@@ -944,7 +944,7 @@ def initSequences(controller):
          'functions': [server_prep]},
         {'title': 'Pre installing Puppet and discovering hosts\' details',
          'functions': [preinstall_and_discover]},
-        {'title': 'Adding pre install manifest entries',
+        {'title': 'Preparing pre-install entries',
          'functions': [create_manifest]},
     ]
 

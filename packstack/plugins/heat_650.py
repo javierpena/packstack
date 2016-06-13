@@ -151,17 +151,17 @@ def initSequences(controller):
     if config['CONFIG_HEAT_INSTALL'] != 'y':
         return
     steps = [
-        {'title': 'Adding Heat manifest entries',
+        {'title': 'Preparing Heat entries',
          'functions': [create_manifest]},
     ]
 
     if config.get('CONFIG_HEAT_CLOUDWATCH_INSTALL', 'n') == 'y':
         steps.append(
-            {'title': 'Adding Heat CloudWatch API manifest entries',
+            {'title': 'Preparing Heat CloudWatch API entries',
              'functions': [create_cloudwatch_manifest]})
     if config.get('CONFIG_HEAT_CFN_INSTALL', 'n') == 'y':
         steps.append(
-            {'title': 'Adding Heat CloudFormation API manifest entries',
+            {'title': 'Preparing Heat CloudFormation API entries',
              'functions': [create_cfn_manifest]})
     controller.addSequence("Installing Heat", [], [], steps)
 

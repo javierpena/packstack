@@ -152,7 +152,7 @@ def initConfig(controller):
 
 def initSequences(controller):
     amqpsteps = [
-        {'title': 'Adding AMQP manifest entries',
+        {'title': 'Preparing AMQP entries',
          'functions': [create_manifest]}
     ]
     controller.addSequence("Installing AMQP", [], [], amqpsteps)

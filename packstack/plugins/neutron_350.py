@@ -500,17 +500,17 @@ def initSequences(controller):
         config['CONFIG_NEUTRON_ML2_SRIOV_AGENT_REQUIRED'] = False
 
     neutron_steps = [
-        {'title': 'Adding Neutron LBaaS Agent manifest entries',
+        {'title': 'Preparing Neutron LBaaS Agent entries',
          'functions': [create_lbaas_manifests]},
-        {'title': 'Adding Neutron API manifest entries',
+        {'title': 'Preparing Neutron API entries',
          'functions': [create_manifests]},
-        {'title': 'Adding Neutron L3 manifest entries',
+        {'title': 'Preparing Neutron L3 entries',
          'functions': [create_l3_manifests]},
-        {'title': 'Adding Neutron L2 Agent manifest entries',
+        {'title': 'Preparing Neutron L2 Agent entries',
          'functions': [create_l2_agent_manifests]},
-        {'title': 'Adding Neutron DHCP Agent manifest entries',
+        {'title': 'Preparing Neutron DHCP Agent entries',
          'functions': [create_dhcp_manifests]},
-        {'title': 'Adding Neutron Metering Agent manifest entries',
+        {'title': 'Preparing Neutron Metering Agent entries',
          'functions': [create_metering_agent_manifests]},
         {'title': 'Checking if NetworkManager is enabled and running',
          'functions': [check_nm_status]},

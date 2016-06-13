@@ -60,9 +60,9 @@ def initSequences(controller):
         return
 
     nagiossteps = [
-        {'title': 'Adding Nagios server manifest entries',
+        {'title': 'Preparing Nagios server entries',
          'functions': [create_manifest]},
-        {'title': 'Adding Nagios host manifest entries',
+        {'title': 'Preparing Nagios host entries',
          'functions': [create_nrpe_manifests]}
     ]
     controller.addSequence("Installing Nagios", [], [], nagiossteps)

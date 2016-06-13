@@ -320,11 +320,3 @@ def initConfig(controller):
 
 def initSequences(controller):
     config = controller.CONF
-
-
-# -------------------------- step functions --------------------------
-def create_tempest_manifest(config, messages):
-    manifest_file = ('%s_provision_tempest.pp' %
-                     config['CONFIG_TEMPEST_HOST'])
-    manifest_data = getManifestTemplate("provision_tempest")
-    appendManifestFile(manifest_file, manifest_data, 'tempest')

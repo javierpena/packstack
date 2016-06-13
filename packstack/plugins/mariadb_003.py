@@ -86,7 +86,7 @@ def initConfig(controller):
 
 def initSequences(controller):
     mariadbsteps = [
-        {'title': 'Adding MariaDB manifest entries',
+        {'title': 'Preparing MariaDB entries',
          'functions': [create_manifest]}
     ]
     controller.addSequence("Installing MariaDB", [], [], mariadbsteps)

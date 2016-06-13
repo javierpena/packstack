@@ -90,7 +90,7 @@ def initSequences(controller):
         return
 
     glancesteps = [
-        {'title': 'Adding Glance manifest entries',
+        {'title': 'Preparing Glance entries',
          'functions': [create_manifest]}
     ]
     controller.addSequence("Installing OpenStack Glance", [], [], glancesteps)

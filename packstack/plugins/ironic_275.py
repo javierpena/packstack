@@ -74,7 +74,7 @@ def initSequences(controller):
         return
 
     steps = [
-        {'title': 'Adding Ironic manifest entries',
+        {'title': 'Preparing Ironic entries',
          'functions': [create_manifest]},
     ]
 

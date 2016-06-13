@@ -41,7 +41,7 @@ def initSequences(controller):
         return
 
     osclientsteps = [
-        {'title': 'Adding OpenStack Client manifest entries',
+        {'title': 'Preparing OpenStack Client entries',
          'functions': [create_manifest]}
     ]
     controller.addSequence("Installing OpenStack Client", [], [],

@@ -83,7 +83,7 @@ def initSequences(controller):
        controller.CONF['CONFIG_CEILOMETER_INSTALL'] != 'y'):
         return
 
-    steps = [{'title': 'Adding Gnocchi manifest entries',
+    steps = [{'title': 'Preparing Gnocchi entries',
               'functions': [create_manifest]}]
     controller.addSequence("Installing OpenStack Gnocchi", [], [],
                            steps)

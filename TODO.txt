@@ -1,4 +1,0 @@
-The following items are still pending:
-
-- Change message for plugins, when "creating manifests"
-- Additional cleanup: remove unused functions in Python code

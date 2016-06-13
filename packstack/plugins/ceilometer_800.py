@@ -22,7 +22,6 @@ from packstack.installer import basedefs
 from packstack.installer import utils
 from packstack.installer import validators
 from packstack.installer import processors
-from packstack.installer.utils import split_hosts
 
 from packstack.modules.documentation import update_params_usage
 from packstack.modules.ospluginutils import generate_ssl_cert
@@ -168,11 +167,11 @@ def initSequences(controller):
     if controller.CONF['CONFIG_CEILOMETER_INSTALL'] != 'y':
         return
 
-    steps = [{'title': 'Adding MongoDB manifest entries',
+    steps = [{'title': 'Preparing MongoDB entries',
               'functions': [create_mongodb_manifest]},
-             {'title': 'Adding Redis manifest entries',
+             {'title': 'Preparing Redis entries',
               'functions': [create_redis_manifest]},
-             {'title': 'Adding Ceilometer manifest entries',
+             {'title': 'Preparing Ceilometer entries',
               'functions': [create_manifest]}]
     controller.addSequence("Installing OpenStack Ceilometer", [], [],
                            steps)

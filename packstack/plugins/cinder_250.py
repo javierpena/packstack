@@ -605,7 +605,7 @@ def initSequences(controller):
              'functions': [check_cinder_vg]})
 
     cinder_steps.append(
-        {'title': 'Adding Cinder manifest entries',
+        {'title': 'Preparing Cinder entries',
          'functions': [create_manifest]}
     )
     controller.addSequence("Installing OpenStack Cinder", [], [], cinder_steps)

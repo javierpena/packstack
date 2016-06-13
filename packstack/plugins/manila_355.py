@@ -550,7 +550,7 @@ def initSequences(controller):
     )
 
     manila_steps = [
-        {'title': 'Adding Manila manifest entries',
+        {'title': 'Preparing Manila entries',
          'functions': [create_manifest]}
     ]
 

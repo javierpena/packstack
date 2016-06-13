@@ -72,7 +72,7 @@ def initSequences(controller):
        controller.CONF['CONFIG_CEILOMETER_INSTALL'] != 'y'):
         return
 
-    steps = [{'title': 'Adding Aodh manifest entries',
+    steps = [{'title': 'Preparing Aodh entries',
               'functions': [create_manifest]}]
     controller.addSequence("Installing OpenStack Aodh", [], [],
                            steps)
