@@ -1,6 +1,4 @@
 The following items are still pending:
 
-- Consolidate firewall manifests inside the controller/compute/network, instead of generating them
-- Redis HA logic (ceilometer_800.py)
 - Change message for plugins, when "creating manifests"
 - Additional cleanup: remove unused functions in Python code
