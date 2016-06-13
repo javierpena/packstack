@@ -40,13 +40,6 @@ if hiera('CONFIG_VMWARE_BACKEND') == 'y' and
 }
 
 if hiera('CONFIG_NEUTRON_INSTALL') == 'y' {
-  $network_hosts =  split(hiera('CONFIG_NETWORK_HOSTS'),',')
-  if member($network_hosts, choose_my_ip(hiera('HOST_LIST'))) {
-    include '::packstack::nova::compute::flat'
-  }
-}
-
-if hiera('CONFIG_NEUTRON_INSTALL') == 'y' {
   include '::packstack::nova::neutron'
   include '::packstack::neutron::rabbitmq'
   case hiera('CONFIG_NEUTRON_L2_AGENT') {
@@ -69,6 +62,11 @@ if hiera('CONFIG_NEUTRON_INSTALL') == 'y' {
     if ! member($network_hosts, choose_my_ip(hiera('HOST_LIST'))) {
       include '::packstack::nova::metadata'
     }
+  }
+
+  $network_hosts =  split(hiera('CONFIG_NETWORK_HOSTS'),',')
+  if ! member($network_hosts, choose_my_ip(hiera('HOST_LIST'))) {
+    include '::packstack::nova::compute::flat'
   }
 }
 
