@@ -1,5 +1,4 @@
 define enable_rabbitmq {
-  ensure_packages(['erlang'], {'ensure' => 'present'})
   create_resources(packstack::firewall, hiera('FIREWALL_AMQP_RULES', {}))
 
   if $::amqp_enable_ssl {
@@ -50,8 +49,6 @@ define enable_rabbitmq {
       },
     }
   }
-
-  Package['erlang'] -> Class['rabbitmq']
 
   # TO-DO: remove this workaround as soon as this is fixed in puppetlabs-rabbitmq module
   #        https://github.com/puppetlabs/puppetlabs-rabbitmq/pull/454
